@@ -5,6 +5,11 @@ import os
 import time
 from datetime import datetime, timedelta
 from algosdk.v2client import indexer
+import sqlite3
+
+# Connect to the database
+conn = sqlite3.connect('my_database.db')
+cursor = conn.cursor()
 
 load_dotenv()
 
@@ -54,6 +59,67 @@ def query():
             # Print the entire transaction details
             #print("\nLatest Transaction:")
             #print(json.dumps(latest_transaction, indent=4))
+
+            # Update Database
+            # Get the current date and time
+            current_datetime = datetime.now()
+
+            # Format it as 'YYYY-MM-DD HH:MM:SS'
+            formatted_datetime = current_datetime.strftime('%Y-%m-%d %H:%M:%S')
+
+            print("********** Transaction Table Information **********")
+            # What is contained in the notes field. User and Transaction Information?
+            user = 1
+            print("User:",user)
+            type_var = json.dumps(latest_transaction["tx-type"])
+            print("Type:",type_var)
+            logdatetime = formatted_datetime
+            print("Time:",logdatetime)
+            from_var = json.dumps(latest_transaction["sender"])
+            print("From:",from_var)
+            to_var = json.dumps(latest_transaction["payment-transaction"]["receiver"])
+            print("To:",to_var)
+            message = decoded_notes
+            print("Message:", message)
+            amount = json.dumps(latest_transaction["payment-transaction"]["amount"])
+            print("Amount:", float(amount))
+            valid = 1
+            print("Valid:",valid)
+            txhash = json.dumps(latest_transaction["id"])
+            print("Txhash",txhash)
+
+            transactions_data = [(user, type_var, logdatetime, from_var, to_var, message, amount, valid, txhash)]
+
+            # Insert data into the 'transactions' table
+            insert_transactions_sql = """
+            INSERT INTO transactions (user, type, logdatetime, "from", "to", message, amount, valid, txhash)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """
+
+            cursor.executemany(insert_transactions_sql, transactions_data)
+
+            conn.commit()
+
+            print("Committed to Transaction Table!")
+
+            # Update User Account Balance
+            # Define the amount to increase the balance by
+            amount_to_increase = amount
+            tag_to_update = user
+
+            # Update the balance for tag = 1
+            update_query = """
+            UPDATE users
+            SET balance = balance + ?
+            WHERE tag = ?;
+            """
+
+            # Execute the update query
+            cursor.execute(update_query, (amount_to_increase, tag_to_update))
+
+            conn.commit()
+            conn.close()
+            print("********** Updated User Table **********")
         else:
             print("No new transactions found for the specified account address.")
     except Exception as e:
