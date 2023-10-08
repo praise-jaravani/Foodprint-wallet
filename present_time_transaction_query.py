@@ -25,8 +25,17 @@ headers = ""
 # Create an instance of the IndexerClient
 idx_client = indexer.IndexerClient(indexer_token, indexer_address, headers)
 
-def query(time_60_seconds_ago_rfc3339, current_time_rfc3339):
+def query():
     try:
+        # Calculate the current time in RFC 3339 format
+        current_time_rfc3339 = datetime.utcnow().isoformat() + "Z"
+
+        # Calculate the time 60 seconds ago from the current time
+        time_60_seconds_ago = datetime.utcnow() - timedelta(seconds=60)
+
+        # Format the time 60 seconds ago in RFC 3339 format
+        time_60_seconds_ago_rfc3339 = time_60_seconds_ago.isoformat() + "Z"
+
         response = idx_client.search_transactions_by_address(
             address=address_2,
             limit=1,
@@ -110,7 +119,7 @@ def query(time_60_seconds_ago_rfc3339, current_time_rfc3339):
             print("Committed to Transaction Table!")
 
             if to_var == address_2 and not(from_var == address_2 and to_var == address_2):
-
+    
                 # Update User Account Balance
                 # Define the amount to increase the balance by
                 amount_to_increase = amount
@@ -149,7 +158,6 @@ def query(time_60_seconds_ago_rfc3339, current_time_rfc3339):
                 conn.commit()
                 conn.close()
                 print("********** Updated User Table **********")
-            
         else:
             print("No new transactions found for the specified account address.")
     except Exception as e:
@@ -157,64 +165,9 @@ def query(time_60_seconds_ago_rfc3339, current_time_rfc3339):
 
 interval = 60
 
-# Execute a SELECT query to retrieve the Latest_Pole value
-cursor.execute("SELECT Latest_Pole FROM query_info")
-result = cursor.fetchone()  # Fetch the first row
-
-# Check if the result is None (indicating a NULL value in the database)
-if result is None:
-    # Calculate the current time in RFC 3339 format
-    current_time_rfc3339 = datetime.utcnow().isoformat() + "Z"
-
-    # Calculate the time 60 seconds ago from the current time
-    time_60_seconds_ago = datetime.utcnow() - timedelta(seconds=60)
-
-    # Format the time 60 seconds ago in RFC 3339 format
-    time_60_seconds_ago_rfc3339 = time_60_seconds_ago.isoformat() + "Z"
-
-    # Insert current time in RFC 3339 into the query_info table
-    insert_query_info = f"INSERT INTO query_info (Latest_Pole) VALUES ('{current_time_rfc3339}')"
-    cursor.execute(insert_query_info)
-
-else:
-    current_time_rfc3339 = result[0]
-
-    # Remove the "+00:00Z" part to make it a valid ISO 8601 format
-    current_time_rfc3339 = current_time_rfc3339.replace("+00:00Z", "")
-
-    # Parse the current time into a datetime object
-    current_time_dt = datetime.fromisoformat(current_time_rfc3339)
-
-    # Calculate 60 seconds ago
-    seconds_ago = timedelta(seconds=60)
-    time_60_seconds_ago = current_time_dt - seconds_ago
-
-    # Format the result in RFC3339 format
-    time_60_seconds_ago_rfc3339 = time_60_seconds_ago.isoformat() + "Z"
-    time_60_seconds_ago_rfc3339 = time_60_seconds_ago_rfc3339.replace("+00:00Z", "Z")
-
 while True:
     # Call the function you want to run
-    query(time_60_seconds_ago_rfc3339, current_time_rfc3339)
-
-    # Remove the "+00:00Z" part to make it a valid ISO 8601 format
-    current_time_rfc3339 = current_time_rfc3339.replace("+00:00Z", "")
-    time_60_seconds_ago_rfc3339 = time_60_seconds_ago_rfc3339.replace("+00:00Z", "")
-
-    # Update each time by a minute
-    current_time = datetime.fromisoformat(current_time_rfc3339)
-    previous_time = datetime.fromisoformat(time_60_seconds_ago_rfc3339)
-
-    # Calculate 60 seconds ago
-    seconds = timedelta(seconds=60)
-    time_60_seconds = current_time + seconds
-    previous_time_60_seconds = previous_time + seconds
-
-    # Format the result in RFC3339 format
-    current_time_rfc3339 = time_60_seconds.isoformat() + "Z"
-    time_60_seconds_ago_rfc3339 =  previous_time_60_seconds.isoformat() + "Z"
-    time_60_seconds_ago_rfc3339 = time_60_seconds_ago_rfc3339.replace("+00:00Z", "Z")
-    current_time_rfc3339 = current_time_rfc3339.replace("+00:00Z", "Z")
+    query()
 
     # Wait for the specified interval before running the code again
     time.sleep(interval)

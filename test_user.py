@@ -8,7 +8,7 @@ cursor = conn.cursor()
 query = """
 SELECT wallet, balance
 FROM users
-WHERE tag = 1;
+WHERE tag = 12345;
 """
 
 # Execute the query

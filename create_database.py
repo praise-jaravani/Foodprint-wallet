@@ -36,6 +36,15 @@ CREATE TABLE users (
 
 cursor.execute(create_users_table)
 
+# Define the SQL statement for creating the 'query_info' table
+create_query_info_table = """
+CREATE TABLE query_info (
+  Latest_Pole TEXT DEFAULT NULL
+);
+"""
+
+cursor.execute(create_query_info_table)
+
 # Commit the changes and close the connection to the database
 conn.commit()
 conn.close()

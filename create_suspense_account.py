@@ -29,7 +29,7 @@ current_datetime = datetime.now()
 formatted_datetime = current_datetime.strftime('%Y-%m-%d %H:%M:%S')
 
 # Example user data as input parameters
-user_data = [{"phone": "1234567891", "tag": "12345", "wallet": "jada_wallet", "balance": 1000.000000, "created": formatted_datetime, "country": "SA"}]
+user_data = [{"phone": "123456789", "tag": "00000", "wallet": "suspense_wallet", "balance": 0.000000, "created": formatted_datetime, "country": "SA"}]
 
 # Insert each user's data into the table
 for user in user_data:

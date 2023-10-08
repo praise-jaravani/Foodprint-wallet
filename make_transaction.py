@@ -37,7 +37,7 @@ unsigned_txn = transaction.PaymentTxn(
     sp=params,
     receiver=address_2,
     amt=1000000,
-    note=b"Hello World",
+    note=b"54321",
 )
 
 # sign the transaction
