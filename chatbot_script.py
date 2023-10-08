@@ -49,7 +49,7 @@ def main(user_id, wallet, balance):
         wallet, balance = user_data
         print(f"Your account balance is {balance} Algos.")
 
-    def withdraw_funds():
+    def withdraw_funds(user_id):
         print("You selected: Withdraw")
         # Add your code to handle withdrawals here
         reciever_id = input("Enter the ID of the reciever: ")
@@ -81,7 +81,7 @@ def main(user_id, wallet, balance):
         print(f"Decoded note: {b64decode(txn_result['txn']['txn']['note'])}")
 
 
-    def send_money():
+    def send_money(user_id):
         print("You selected: Send")
         reciever_id = input("Enter the ID of the reciever: ")
         amount = input("Enter the amount you wish to send: ")
@@ -132,7 +132,7 @@ def main(user_id, wallet, balance):
         # Update the balance for tag = 1
         update_query = """
         UPDATE users
-        SET balance = balance + ?
+        SET balance = balance - ?
         WHERE tag = ?;
         """
 
@@ -157,9 +157,9 @@ def main(user_id, wallet, balance):
             case '1':
                 check_balance(user_id)
             case '2':
-                withdraw_funds()
+                withdraw_funds(user_id)
             case '3':
-                send_money()
+                send_money(user_id)
             case '4':
                 print("Exiting the program.")
                 break

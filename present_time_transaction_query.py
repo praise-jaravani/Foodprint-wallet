@@ -118,6 +118,8 @@ def query():
 
             print("Committed to Transaction Table!")
 
+            # Increase if the reciever is the main account
+
             if to_var == address_2 and not(from_var == address_2 and to_var == address_2):
     
                 # Update User Account Balance
@@ -139,11 +141,13 @@ def query():
                 conn.close()
                 print("********** Updated User Table **********")
 
+            # Decrease if the sender is the main account
+
             elif from_var == address_2 and not(from_var == address_2 and to_var == address_2):
 
                 # Update User Account Balance
-                # Define the amount to increase the balance by
-                amount_to_increase = amount
+                # Define the amount to decrease the balance by
+                amount_to_decrease = amount
                 tag_to_update = user
 
                 # Update the balance for tag = 1
@@ -153,7 +157,7 @@ def query():
                 WHERE tag = ?;
                 """
                 # Execute the update query
-                cursor.execute(update_query, (amount_to_increase, tag_to_update))
+                cursor.execute(update_query, (amount_to_decrease, tag_to_update))
 
                 conn.commit()
                 conn.close()
