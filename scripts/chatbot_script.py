@@ -52,17 +52,18 @@ def main(user_id, wallet, balance):
     def withdraw_funds(user_id):
         print("You selected: Withdraw")
         # Add your code to handle withdrawals here
-        reciever_id = input("Enter the ID of the reciever: ")
-        amount = input("Enter the amount you wish to withdraw: ")
+        reciever_address = input("Enter the Algorand Address of the reciever: ")
+        amount = int(input("Enter the amount you wish to withdraw: "))
+        user_id = str(user_id)
 
         # Transaction 
         params = algod_client.suggested_params()
         unsigned_txn = transaction.PaymentTxn(
             sender=address_2,
             sp=params,
-            receiver=reciever_id,
+            receiver=reciever_address,
             amt=amount,
-            note=b"{user_id}",
+            note=user_id.encode('utf-8'), 
         )
 
         # sign the transaction
@@ -84,7 +85,8 @@ def main(user_id, wallet, balance):
     def send_money(user_id):
         print("You selected: Send")
         reciever_id = input("Enter the ID of the reciever: ")
-        amount = input("Enter the amount you wish to send: ")
+        amount = int(input("Enter the amount you wish to send: "))
+        user_id = str(user_id)
 
         # Connect to the database
         conn = sqlite3.connect('my_database.db')
@@ -97,7 +99,7 @@ def main(user_id, wallet, balance):
             sp=params,
             receiver=address_2,
             amt=amount,
-            note=b"{user_id}",
+            note=user_id.encode('utf-8'),
         )
 
         # sign the transaction
@@ -176,7 +178,7 @@ exit_program = False
 while True:
 
     # Get user_id from the user
-    user_id = input("Enter your user ID: ")
+    user_id = int(input("Enter your user ID: "))
 
     # Call the function to query the user table
     user_data = query_user_by_id(user_id)

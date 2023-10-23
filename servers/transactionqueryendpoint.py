@@ -1,3 +1,7 @@
+from fastapi import FastAPI, HTTPException
+
+app = FastAPI()
+
 import json
 import base64
 from dotenv import load_dotenv
@@ -120,7 +124,9 @@ def query():
 
             # Increase if the reciever is the main account
 
-            if to_var == address_2 and not(from_var == address_2 and to_var == address_2):
+            new_address_2 = '"' + address_2 + '"' #UPDATE HERE
+
+            if (to_var == new_address_2) and (from_var != to_var): #UPDATE HERE
     
                 # Update User Account Balance
                 # Define the amount to increase the balance by
@@ -140,10 +146,11 @@ def query():
                 conn.commit()
                 conn.close()
                 print("********** Updated User Table **********")
+                print("Deposit")
 
             # Decrease if the sender is the main account
 
-            elif from_var == address_2 and not(from_var == address_2 and to_var == address_2):
+            elif (from_var == new_address_2) and (from_var != to_var): # UPDATE HERE
 
                 # Update User Account Balance
                 # Define the amount to decrease the balance by
@@ -162,6 +169,7 @@ def query():
                 conn.commit()
                 conn.close()
                 print("********** Updated User Table **********")
+                print("Withdrawal")
         else:
             print("No new transactions found for the specified account address.")
     except Exception as e:
@@ -169,9 +177,12 @@ def query():
 
 interval = 60
 
-while True:
-    # Call the function you want to run
-    query()
+@app.get("/")
+def read_root():
+    while True:
+        # Call the function you want to run
+        query()
 
-    # Wait for the specified interval before running the code again
-    time.sleep(interval)
+        # Wait for the specified interval before running the code again
+        time.sleep(interval)
+    return {"Response": "Success"}

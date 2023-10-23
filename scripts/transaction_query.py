@@ -109,7 +109,11 @@ def query(time_60_seconds_ago_rfc3339, current_time_rfc3339):
 
             print("Committed to Transaction Table!")
 
-            if to_var == address_2 and not(from_var == address_2 and to_var == address_2):
+            new_address_2 = '"' + address_2 + '"' #UPDATE HERE
+
+            # Increase if the reciever is the main account
+
+            if (to_var == new_address_2) and (from_var != to_var):
 
                 # Update User Account Balance
                 # Define the amount to increase the balance by
@@ -130,7 +134,9 @@ def query(time_60_seconds_ago_rfc3339, current_time_rfc3339):
                 conn.close()
                 print("********** Updated User Table **********")
 
-            elif from_var == address_2 and not(from_var == address_2 and to_var == address_2):
+            # Decrease if the sender is the main account
+
+            elif (from_var == new_address_2) and (from_var != to_var):
 
                 # Update User Account Balance
                 # Define the amount to increase the balance by
