@@ -9,12 +9,17 @@ import os
 import time
 from datetime import datetime, timedelta
 from algosdk.v2client import indexer
-import sqlite3
+import psycopg2
+from psycopg2 import sql
 
 def connect_to_database():
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    db_path = os.path.join(script_dir, 'my_database.db')
-    conn = sqlite3.connect(db_path)
+    # Connect to the PostgreSQL database
+    conn = psycopg2.connect(
+        database="myDatabase",
+        user="admin",
+        host="localhost",
+        port="5432"
+    )
     cursor = conn.cursor()
     return conn, cursor
 
@@ -101,7 +106,7 @@ def query():
             print("Txhash",txhash)
 
             # Check if a user exists in the database
-            sql_query = "SELECT * FROM users WHERE tag = ?"
+            sql_query = "SELECT * FROM users WHERE tag = %s"
 
             # Execute the query with the specific_tag as a parameter
             cursor.execute(sql_query, (user,))
@@ -120,8 +125,8 @@ def query():
 
             # Insert data into the 'transactions' table
             insert_transactions_sql = """
-            INSERT INTO transactions (user, type, logdatetime, "from", "to", message, amount, valid, txhash)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO transactions (user_id, type, logdatetime, "from", "to", message, amount, valid, txhash)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
 
             cursor.executemany(insert_transactions_sql, transactions_data)
@@ -144,8 +149,8 @@ def query():
                 # Update the balance for tag = 1
                 update_query = """
                 UPDATE users
-                SET balance = balance + ?
-                WHERE tag = ?;
+                SET balance = balance + %s
+                WHERE tag = %s;
                 """
 
                 # Execute the update query
@@ -167,8 +172,8 @@ def query():
                 # Update the balance for tag = 1
                 update_query = """
                 UPDATE users
-                SET balance = balance - ?
-                WHERE tag = ?;
+                SET balance = balance - %s
+                WHERE tag = %s;
                 """
                 # Execute the update query
                 cursor.execute(update_query, (amount_to_decrease, tag_to_update))

@@ -3,7 +3,8 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
-import sqlite3
+import psycopg2
+from psycopg2 import sql
 import json
 import os
 
@@ -32,13 +33,19 @@ algod_token = ""
 
 algod_client = algod.AlgodClient(algod_token, algod_address)
 
+# Change here ...................
 def connect_to_database():
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    db_path = os.path.join(script_dir, 'my_database.db')
-    conn = sqlite3.connect(db_path)
+    # Connect to the PostgreSQL database
+    conn = psycopg2.connect(
+        database="myDatabase",
+        user="admin",
+        host="localhost",
+        port="5432"
+    )
     cursor = conn.cursor()
     return conn, cursor
 
+# Change here ...................
 def close_database_connection(conn):
     conn.close()
 
@@ -47,8 +54,9 @@ def query_user_by_id(user_id):
     conn, cursor = connect_to_database()
     
     # Query the user table for the provided user_id
-    cursor.execute("SELECT wallet, balance FROM users WHERE tag = ?", (user_id,))
+    cursor.execute("SELECT wallet, balance FROM users WHERE tag = %s", (user_id,))
     result = cursor.fetchone()
+
     
     close_database_connection(conn)
     return result
@@ -153,28 +161,27 @@ async def send_money(request: MoneyTransferRequest):
     print(f"Decoded note: {b64decode(txn_result['txn']['txn']['note'])}")
 
     # Increase Reciever
-    # Update the balance for tag = 1
-    update_query = """
+    # Update the balance for tag = receiver_id
+    update_receiver_query = """
     UPDATE users
-    SET balance = balance + ?
-    WHERE tag = ?;
+    SET balance = balance + %s
+    WHERE tag = %s;
     """
 
-    # Execute the update query
-    cursor.execute(update_query, (amount, receiver_id))
-
-    conn.commit()
+    # Execute the update query for the receiver
+    cursor.execute(update_receiver_query, (amount, receiver_id))
 
     # Decrease Sender
-    # Update the balance for tag = 1
-    update_query = """
+    # Update the balance for tag = user_id
+    update_sender_query = """
     UPDATE users
-    SET balance = balance - ?
-    WHERE tag = ?;
+    SET balance = balance - %s
+    WHERE tag = %s;
     """
 
-    # Execute the update query
-    cursor.execute(update_query, (amount, user_id))
+    # Execute the update query for the sender
+    cursor.execute(update_sender_query, (amount, user_id))
+
 
     conn.commit()
 
