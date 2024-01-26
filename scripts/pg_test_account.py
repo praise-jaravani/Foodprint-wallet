@@ -1,6 +1,21 @@
 import psycopg2
-from psycopg2 import sql
+from urllib.parse import urlparse
 from datetime import datetime
+
+# Database URL from Heroku
+database_url = "postgres://uvjgyngxorrtjl:b0543e8c6c49823487414b02fe324af2416cb60d54e4bf3cb0e462e80b888ad4@ec2-107-21-67-46.compute-1.amazonaws.com:5432/d2f44igcakhar7"
+
+# Parse the database URL
+url = urlparse(database_url)
+
+# Create a connection to the database
+conn = psycopg2.connect(
+    database=url.path[1:],
+    user=url.username,
+    password=url.password,
+    host=url.hostname,
+    port=url.port
+)
 
 def insert_user_data(connection, phone, tag, wallet, balance, created, updated=None, country=None):
     try:
@@ -19,14 +34,6 @@ def insert_user_data(connection, phone, tag, wallet, balance, created, updated=N
         print(f"User data for {phone} inserted successfully.")
     except Exception as e:
         print(f"An error occurred: {e}")
-
-# Connect to the PostgreSQL database
-conn = psycopg2.connect(
-    database="myDatabase",
-    user="admin",
-    host="localhost",
-    port="5432"
-)
 
 # Get the current date and time
 current_datetime = datetime.now()

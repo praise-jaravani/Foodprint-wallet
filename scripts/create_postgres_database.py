@@ -1,13 +1,21 @@
 import psycopg2
-from psycopg2 import sql
+from urllib.parse import urlparse
 
-# Connect to the PostgreSQL database
+# Database URL from Heroku
+database_url = "postgres://uvjgyngxorrtjl:b0543e8c6c49823487414b02fe324af2416cb60d54e4bf3cb0e462e80b888ad4@ec2-107-21-67-46.compute-1.amazonaws.com:5432/d2f44igcakhar7"
+
+# Parse the database URL
+url = urlparse(database_url)
+
+# Create a connection to the database
 conn = psycopg2.connect(
-    database="myDatabase",
-    user="admin",
-    host="localhost",
-    port="5432"
+    database=url.path[1:],
+    user=url.username,
+    password=url.password,
+    host=url.hostname,
+    port=url.port
 )
+
 cursor = conn.cursor()
 
 # Define the SQL statements for creating the 'transactions' table

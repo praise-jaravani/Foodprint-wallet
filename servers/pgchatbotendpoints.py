@@ -190,3 +190,50 @@ async def send_money(request: MoneyTransferRequest):
     # Return a success message or error message
     return {"message": "Money sent successfully"}  # Modify this as needed
 
+# Update Code from here
+import random
+from datetime import datetime
+
+def create_new_destination_tag():
+    return str(random.randint(100000000, 999999999))
+
+def get_user_data(phone_number):
+    conn, cursor = connect_to_database()
+
+    query = f"SELECT phone, tag FROM users WHERE phone = '{phone_number}'"
+    cursor.execute(query)
+    result = cursor.fetchone()
+
+    close_database_connection(conn)
+    return result
+
+def create_user(phone_number):
+    conn, cursor = connect_to_database()
+
+    tag = create_new_destination_tag()
+    created_time = datetime.now()
+
+    insert_query = f"INSERT INTO users (phone, tag, created, updated, balance) VALUES ('{phone_number}', '{tag}', '{created_time}', NULL, 0.000000)"
+    cursor.execute(insert_query)
+
+    conn.commit()
+
+    close_database_connection(conn)
+    return tag
+
+@app.get("/customer/status/{phone_number}")
+def get_customer_status(phone_number: str):
+    try:
+        user_data = get_user_data(phone_number)
+
+        if user_data:
+            phone, tag = user_data
+            print("User Existing! Returning User Data")
+            return {"phoneNumber": phone, "tag": tag}
+
+        tag = create_user(phone_number)
+        print("User Not Existing. Creating User Data!")
+        return {"phoneNumber": phone_number, "tag": tag}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

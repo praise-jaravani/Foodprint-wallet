@@ -2,8 +2,8 @@ import requests
 
 # Define the request payload
 payload = {
-    "user_id": 12345,  # Replace with the sender's user ID
-    "receiver_id": 54321,  # Replace with the receiver's user ID
+    "user_id": 54321,  # Replace with the sender's user ID
+    "receiver_id": 12345,  # Replace with the receiver's user ID
     "amount": 10000  # Replace with the amount to send
 }
 
